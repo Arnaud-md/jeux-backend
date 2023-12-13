@@ -2,8 +2,8 @@ POST http://localhost:1337/api/auth/local/register
 content-type: application/json
 
 {
-        "email": "me5@gmail.com",
-        "password": "dddddddd"
+        "email": "user@gmail.com",
+        "password": "1234"
 }
 
 ###
@@ -12,8 +12,8 @@ POST http://localhost:1337/api/auth/local
 content-type: application/json
 
 {
-    "email": "me5@gmail.com",
-    "password": "dddddddd"
+    "email": "user@gmail.com",
+    "password": "1234"
 }
 
 ###
@@ -28,9 +28,9 @@ content-type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzAxNzc1MzE4LCJleHAiOjE3MDQzNjczMTh9.Pd10AzyjGGIXYOZ5H1gis-NiNIj5i9P8d9YTda0UfWA
 
 {
-    "currentPassword": "123456",
-    "password": "654321",
-    "passwordConfirmation": "654321"
+    "currentPassword": "1234",
+    "password": "abcd",
+    "passwordConfirmation": "abcd"
 }
 
 ###
@@ -102,7 +102,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxN
 }
 ###
 GET http://localhost:1337/api/official-games
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNzAxODc3NzQyLCJleHAiOjE3MDE4ODEzNDJ9.sqZKjt4h5b0AgApkr4-iBrA6oW_TEEnbXNxkfCZJ4gw
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNzAyMDQ4NDg2LCJleHAiOjE3MDIwNTIwODZ9.s9LgRqV3Af665RX0QAwBqaip34hwQPooIJy4-vh6QJA
 ###
 GET http://localhost:1337/api/official-games/2
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNzAxODc3NzQyLCJleHAiOjE3MDE4ODEzNDJ9.sqZKjt4h5b0AgApkr4-iBrA6oW_TEEnbXNxkfCZJ4gw
@@ -122,4 +122,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyI
 ###
 DELETE http://localhost:1337/api/official-games/1
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwiaWF0IjoxNzAxNzc1MzE4LCJleHAiOjE3MDQzNjczMTh9.Pd10AzyjGGIXYOZ5H1gis-NiNIj5i9P8d9YTda0UfWA
+###
+POST http://localhost:1337/api/auth/local/logout
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJkYXRhIjoiZm9vYmFyIiwiaWF0IjoxNzAyMDUwNjU2LCJleHAiOjE3MDIwNTQyNTZ9.JIs7iDTcxFEdH1farW5e5tLsrjEFRom3p-enfGhXolo
 

@@ -1,15 +1,16 @@
 import express, { Request } from "express";
 import 'dotenv/config';
-import {Jeu, JeuOfficial, Recipe, User} from './seqconfig';
+import {Jeu, JeuOfficial, Recipe, User, sequelize} from './seqconfig';
 import bodyParser from "body-parser";
 import { IntegerDataType } from "sequelize";
 import cors from "cors";
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { Http2ServerRequest, Http2ServerResponse } from "http2";
+import { TokenBlackListModel } from "./model/TokenBlackList";
+import { DecodeToken, checkToken } from "./middlewares/checkToken";
 
 const middleware = (req:any, res:any, next:any) => {
-  console.log(req);
+  console.log("req : ",req);
   let bearer = req.headers.authorization;
   if(bearer!==undefined) {
     bearer = bearer.replace("Bearer ","");
@@ -29,6 +30,7 @@ const middleware = (req:any, res:any, next:any) => {
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+export const TokenBlackList = TokenBlackListModel(sequelize);
 
 const port = process.env.PORT ? parseInt(process.env.PORT as string) : 3030
 
@@ -54,7 +56,11 @@ interface IMaRequetBody {
       const newUser = await User.create(monUser);
       const newUserData = newUser.dataValues
       delete newUserData.password
-      res.status(200).json(newUserData);
+      //res.status(200).json(newUserData);
+      
+      const tokenJWT = jwt.sign({ data: 'foobar'}, 'secret', { expiresIn: '1h' });
+        res.status(200).send(tokenJWT);
+      //res.status(200).send(hash);
     }
     else {
       res.status(400).send("l'email que vous avez saisi est déjà utilisé");
@@ -62,6 +68,44 @@ interface IMaRequetBody {
     
     console.log("userEmail : ",userEmail);
   })
+  app.post("/api/auth/local/logout", checkToken, async (req, res) => {
+    const decoded = jwt.decode(req.token!) as DecodeToken
+    const user = await User.findOne({ where: { id: decoded.id } });
+    if (user) {
+        await TokenBlackList.create({ token: req.token });
+        res.send("Logged out");
+    }
+    else {
+        res.status(404).send("User not found");
+    }
+})
+  // app.post("/api/auth/local/change-password", checkToken, async(req, res) => {
+  //   //const id = req.body.id;
+  //   const email = req.body.email;
+
+  //   const userEmail = await User.findOne({ where: {email:email}});
+  //   console.log("userEmail : ",userEmail);
+  //   if (userEmail===null) {
+  //     const password = req.body.password;
+      
+  //     const saltRounds = 10;
+  //     const hash = await bcrypt.hash(password, saltRounds);
+  //     const monUser = { email, password:hash };
+  //     const newUser = await User.create(monUser);
+  //     const newUserData = newUser.dataValues
+  //     delete newUserData.password
+  //     //res.status(200).json(newUserData);
+      
+  //     const tokenJWT = jwt.sign({ data: 'foobar'}, 'secret', { expiresIn: '1h' });
+  //       res.status(200).send(tokenJWT);
+  //     //res.status(200).send(hash);
+  //   }
+  //   else {
+  //     res.status(400).send("l'email que vous avez saisi est déjà utilisé");
+  //   }
+    
+  //   console.log("userEmail : ",userEmail);
+  // })
   app.get("/api/users", async(req, res) => {
     const allUsers = await User.findAll();
     res.status(200).send(JSON.stringify(allUsers));
@@ -172,53 +216,54 @@ await JeuOfficial.destroy({
 res.send('ok');
 })
 
-  app.post("/send-recipe", (req, res) => {
-    const nom = req.body.nom;
-    const image = req.body.image;
-    const duree = req.body.duree;
-    const note = req.body.note;
-    const maRecette = { nom, image ,duree, note }
-    console.log(maRecette);
-    Recipe.create(maRecette);
-    res.json(maRecette);
-  })
+//   app.post("/send-recipe", (req, res) => {
+//     const nom = req.body.nom;
+//     const image = req.body.image;
+//     const duree = req.body.duree;
+//     const note = req.body.note;
+//     const maRecette = { nom, image ,duree, note }
+//     console.log(maRecette);
+//     Recipe.create(maRecette);
+//     res.json(maRecette);
+//   })
 
-  app.delete("/delete-recipe/:id", async (req, res) => {
-    await Recipe.destroy({
-        where: {id: req.params.id }
-    });
+//   app.delete("/delete-recipe/:id", async (req, res) => {
+//     await Recipe.destroy({
+//         where: {id: req.params.id }
+//     });
 
-    res.send('ok');
-  })
+//     res.send('ok');
+//   })
 
-app.get('/random-between/:min/:max', (req, res) => {
-    const min = parseInt(req.params.min)
-    const max = parseInt(req.params.max)
-    const random = Math.floor(Math.random() * (max - min + 1)) + min
-    console.log('number' + random);
-    res.send(random.toString())
-})
+// app.get('/random-between/:min/:max', (req, res) => {
+//     const min = parseInt(req.params.min)
+//     const max = parseInt(req.params.max)
+//     const random = Math.floor(Math.random() * (max - min + 1)) + min
+//     console.log('number' + random);
+//     res.send(random.toString())
+// })
 
-app.post('/saveRecipe/:nom/:image/:duree/:note', (req, res) => {
-    const nom = req.params.nom;
-    const image = req.params.image;
-    const duree = parseInt(req.params.duree);
-    const note = parseInt(req.params.note);
-    const myRecipe = {
-        nom: nom,
-        image : image,
-        duree : duree,
-        note : note
-    };
-    Recipe.create(myRecipe);
-    res.send(myRecipe);
-})
+// app.post('/saveRecipe/:nom/:image/:duree/:note', (req, res) => {
+//     const nom = req.params.nom;
+//     const image = req.params.image;
+//     const duree = parseInt(req.params.duree);
+//     const note = parseInt(req.params.note);
+//     const myRecipe = {
+//         nom: nom,
+//         image : image,
+//         duree : duree,
+//         note : note
+//     };
+//     Recipe.create(myRecipe);
+//     res.send(myRecipe);
+// })
 
-app.get('/findAll', async(req, res) => {
-    const allRecipes = await Recipe.findAll();
-    res.status(200).send(JSON.stringify(allRecipes));
-})
+// app.get('/findAll', async(req, res) => {
+//     const allRecipes = await Recipe.findAll();
+//     res.status(200).send(JSON.stringify(allRecipes));
+// })
 
 app.listen(port, () => {
     console.log('serveur running on port : ' + port);
 })
+
